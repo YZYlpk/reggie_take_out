@@ -148,7 +148,9 @@
                         //表示是从订单页面跳转过来的
                         if(url.includes('order')){
                             this.setDefaultAddress(item)
-                            history.go(-1)
+                            //下单页面点击更换了地址，我们将它设置为默认地址，然后返回订单页面（此时地址信息已经更改）
+                            window.location.href= '/front/page/add-order.html'
+                            //history.go(-1) 用这个的话页面上的地址信息没有更改
                         }
                     }
 
