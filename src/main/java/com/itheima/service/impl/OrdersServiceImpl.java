@@ -6,7 +6,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.itheima.common.BaseContext;
 import com.itheima.common.CustomException;
-import com.itheima.common.R;
 import com.itheima.dto.OrdersDto;
 import com.itheima.entity.*;
 import com.itheima.mapper.OrdersMapper;
@@ -21,6 +20,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -164,4 +164,39 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
 
         return pageInfoDto;
     }
+
+    @Override
+    public void again(Map<String, Long> map) {
+
+        Long id = map.get("id");
+        // 制作判断条件
+        LambdaQueryWrapper<OrderDetail> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(OrderDetail::getOrderId,id);
+
+        //获取该订单对应的所有的订单明细表
+        List<OrderDetail> orderDetailList = orderDetailService.list(queryWrapper);
+
+        //通过用户id把原来的购物车给清空
+        shoppingCartService.clean();
+
+        //获取用户id
+        Long userId = BaseContext.getCurrentId();
+
+        // 整体赋值
+        List<ShoppingCart> shoppingCartList = orderDetailList.stream().map((item) -> {
+
+            // 以下均为赋值操作
+            ShoppingCart shoppingCart = new ShoppingCart();
+
+            BeanUtils.copyProperties(item,shoppingCart);
+            shoppingCart.setUserId(userId);
+            shoppingCart.setCreateTime(LocalDateTime.now());
+
+            return shoppingCart;
+        }).collect(Collectors.toList());
+
+        // 将携带数据的购物车批量插入购物车表
+        shoppingCartService.saveBatch(shoppingCartList);
+    }
+
 }

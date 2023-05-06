@@ -117,42 +117,15 @@ public class OrdersConotroller {
 
 
     /**
+     * 再来一单
      * 我们需要将订单内的菜品重新加入购物车，
      *所以在此之前我们需要将购物车清空（业务层实现方法）
-     *
      */
     @PostMapping("/again")
     @Transactional
-    public R<String> againSubmit(@RequestBody Map<String,Long> map){
-        Long id = map.get("id");
-        // 制作判断条件
-        LambdaQueryWrapper<OrderDetail> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(OrderDetail::getOrderId,id);
+    public R<String> again(@RequestBody Map<String,Long> map){
 
-        //获取该订单对应的所有的订单明细表
-        List<OrderDetail> orderDetailList = orderDetailService.list(queryWrapper);
-
-        //通过用户id把原来的购物车给清空
-        shoppingCartService.clean();
-
-        //获取用户id
-        Long userId = BaseContext.getCurrentId();
-
-        // 整体赋值
-        List<ShoppingCart> shoppingCartList = orderDetailList.stream().map((item) -> {
-
-            // 以下均为赋值操作
-            ShoppingCart shoppingCart = new ShoppingCart();
-
-            BeanUtils.copyProperties(item,shoppingCart);
-            shoppingCart.setUserId(userId);
-            shoppingCart.setCreateTime(LocalDateTime.now());
-
-            return shoppingCart;
-        }).collect(Collectors.toList());
-
-        // 将携带数据的购物车批量插入购物车表
-        shoppingCartService.saveBatch(shoppingCartList);
+        ordersService.again(map);
 
         return R.success("添加购物车成功");
     }
