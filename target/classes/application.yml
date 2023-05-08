@@ -9,17 +9,32 @@ spring:
       url: jdbc:mysql://localhost:3306/reggie?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
       username: root
       password: 123456
+  # Redis相关配置
+  redis:
+    host: localhost
+    port: 6379
+    # password: 123456
+    # 默认在0号数据库执行，redis启动后默认提供了16个数据库；要修改数量在redis.windows.conf文件里面更改
+    database: 0
+    jedis:
+      # Redis连接池配置
+      pool:
+        max-active: 8  # 最大连接数
+        max-wait: 1ms  # 连接池最大阻塞等待时间
+        max-idle: 4    # 连接池中的最大空闲连接
+        min-idle: 0    # 连接池中的最小空闲连接
+
 mybatis-plus:
-  mapper-locations: classpath:mapper/*.xml #mapper接口对应的配置文件位置
-  type-aliases-package: com.itheima.entity #实体类位置
+  mapper-locations: classpath:mapper/*.xml # mapper接口对应的配置文件位置
+  type-aliases-package: com.itheima.entity # 实体类位置
   configuration:
-    #在映射实体或者属性时，将数据库中表名和字段名中的下划线去掉，按照驼峰命名法映射 比如: id_book -> idBook
+    # 在映射实体或者属性时，将数据库中表名和字段名中的下划线去掉，按照驼峰命名法映射 比如: id_book -> idBook
     map-underscore-to-camel-case: true
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
   global-config:
     db-config:
       id-type: ASSIGN_ID
 
-#自定义文件下载位置
+# 自定义文件下载位置
 reggie:
   path: D:\img\
