@@ -11,9 +11,9 @@ spring:
       password: 123456
   # Redis相关配置
   redis:
-    host: localhost
+    host: 127.0.0.1 #redis的host
     port: 6379
-    # password: 123456
+    password: 123456 #在redis配置文件里面配置了 不过启动service得用cmd命令启动，不然匹配不到修改过的配置文件
     # 默认在0号数据库执行，redis启动后默认提供了16个数据库；要修改数量在redis.windows.conf文件里面更改
     database: 0
     jedis:

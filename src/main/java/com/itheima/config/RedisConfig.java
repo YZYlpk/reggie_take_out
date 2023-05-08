@@ -8,7 +8,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 /**
- * Redis配置类
+ * Redis配置类 使用RedisTemplate封装类得用这个配置
+ * 使用stringRedisTemplate就不需要这个配置
  */
 
 @Configuration
