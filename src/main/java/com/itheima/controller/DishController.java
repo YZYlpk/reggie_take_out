@@ -13,12 +13,15 @@ import com.itheima.service.DishService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -33,6 +36,12 @@ public class DishController {
     private DishService dishService;
     @Autowired
     private DishFlavorService dishFlavorService;
+
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
 
 
     /**
@@ -61,6 +70,10 @@ public class DishController {
 
         dishService.saveWithFlavor(dishDto);
 
+        //清理修改的菜品对应的菜品分类id的数据缓存
+        String key="dish"+"_"+dishDto.getCategoryId()+"_1";
+        redisTemplate.delete(key);
+
         return R.success("新增菜品成功");
     }
 
@@ -87,6 +100,11 @@ public class DishController {
         log.info(dishDto.toString());
 
         dishService.updateWithFalvor(dishDto);
+
+        //清理修改的菜品对应的菜品分类id的数据缓存
+        String key="dish"+"_"+dishDto.getCategoryId()+"_1";
+        redisTemplate.delete(key);
+
         return R.success("修改成功");
     }
 
@@ -118,6 +136,21 @@ public class DishController {
         List<Long> idList = Arrays.stream(split).map(s -> Long.parseLong(s.trim())).collect(Collectors.toList());
 
         dishService.removeByIds(idList);//执行批量删除（MP自带方法）
+
+        //清理修改的菜品对应的菜品分类id的数据缓存
+        if(split.length==1){
+            //如果只修改了一个菜品，则清理对应的那个菜品分类id缓存即可；
+
+            Dish byId = dishService.getById(ids);
+            String key="dish"+"_"+byId.getCategoryId()+"_1";
+            redisTemplate.delete(key);
+
+        } else if(split.length>1){
+            //如果修改多个菜品，则清理菜品全部的缓存
+            Set keys = redisTemplate.keys("dish_*");
+            redisTemplate.delete(keys);
+
+        }
 
         log.info("删除的ids: {}",ids);
         return R.success("删除成功"); //返回成功
@@ -159,6 +192,20 @@ public class DishController {
     // 正常情况下参数应该是id，但我们可以用dish实体类，它有属性id。
     // 这样我们就可以通过dish里面的status来筛选还在售卖的菜品
     public R<List<DishDto>> list(Dish dish){
+        List<DishDto> dtoList=null;
+
+        //按菜品分类id进行缓存,动态构造key
+        String key="dish"+"_"+dish.getCategoryId()+"_"+ dish.getStatus();//一类菜品分类id：dish_1397844303408574465_1
+
+        //先从redis获取数据
+        //dtoList =(List<DishDto>) stringRedisTemplate.opsForValue().get(key);//stringRedisTemplate没法强转
+        dtoList =(List<DishDto>) redisTemplate.opsForValue().get(key);
+        if(dtoList!=null){
+            //如果存在，直接获取，无需查询数据库；
+            return R.success(dtoList);
+        }
+
+
         //构造查询条件
         LambdaQueryWrapper<Dish> queryWrapper=new LambdaQueryWrapper<>();
         queryWrapper.eq(dish.getCategoryId()!=null,Dish::getCategoryId,dish.getCategoryId());
@@ -171,7 +218,7 @@ public class DishController {
         List<Dish> list = dishService.list(queryWrapper);
 
         //因为只目前显示了菜品信息，还需要将每个菜品对应的口味信息加上
-        List<DishDto> dtoList= list.stream().map(e -> {
+        dtoList= list.stream().map(e -> {
             DishDto dishDto = new DishDto();
             //先将菜品信息复制过来
             BeanUtils.copyProperties(e,dishDto);
@@ -184,6 +231,9 @@ public class DishController {
             dishDto.setFlavors(list1);
             return dishDto;
         }).collect(Collectors.toList());
+
+        //如果不存在，从数据库获取，将查询到的数据缓存到redis中
+        redisTemplate.opsForValue().set(key,dtoList,60, TimeUnit.MINUTES);
 
         return R.success(dtoList);
     }

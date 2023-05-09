@@ -3,7 +3,6 @@ package com.itheima.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.itheima.common.R;
 import com.itheima.dto.DishDto;
 import com.itheima.entity.Category;
 import com.itheima.entity.Dish;
@@ -15,12 +14,13 @@ import com.itheima.service.DishService;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,6 +37,9 @@ public class DishServiceImpl extends ServiceImpl<DishMapper,Dish> implements Dis
 
     @Autowired
     private DishMapper dishMapper;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     /**
      * 新增菜品，同时保存菜品对应的口味数据
@@ -155,10 +158,26 @@ public class DishServiceImpl extends ServiceImpl<DishMapper,Dish> implements Dis
     public void updateStatus(int status,String ids) {
         /** 目的：将string转成long[],比如："123,222” -> [123,222] **/
 
+
         //如果ids是有多个id，那么将它转成string数组
         String[] split =  ids.split(",");
 
         if (split.length!= 0){//判断是否为空
+
+            //清理修改的菜品对应的菜品分类id的数据缓存
+            if(split.length==1){
+                //如果只修改了一个菜品，则清理对应的那个菜品分类id缓存即可；
+
+                Dish byId = dishService.getById(ids);
+                String key="dish"+"_"+byId.getCategoryId()+"_1";
+                redisTemplate.delete(key);
+
+            } else {
+                //如果修改多个菜品，则清理菜品全部的缓存
+                Set keys = redisTemplate.keys("dish_*");
+                redisTemplate.delete(keys);
+
+            }
 
             //处理string 转成Long :将数组每个string元素转成long型
             List<Long> longs= Arrays.stream(split).map((e) ->
