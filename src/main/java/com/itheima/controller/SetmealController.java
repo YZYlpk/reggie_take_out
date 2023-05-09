@@ -12,6 +12,8 @@ import com.itheima.service.SetmealService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
@@ -47,14 +49,15 @@ public class SetmealController {
      * @return
      */
     @PostMapping
+    @CacheEvict(value = "setmealCache",key = "#setmealDto.categoryId +'_1'") //删除该套餐对应的分类id的所有缓存
     public R<String> save(@RequestBody SetmealDto setmealDto){
         log.info("套餐信息：{}",setmealDto);
 
         setmealService.saveWithDish(setmealDto);
 
-        //清理套餐对应的一类菜品分类id的缓存数据
-        String key="setmeal_"+setmealDto.getCategoryId()+"_1";
-        redisTemplate.delete(key);
+//        //清理套餐对应的一类菜品分类id的缓存数据
+//        String key="setmeal_"+setmealDto.getCategoryId()+"_1";
+//        redisTemplate.delete(key);
 
         return R.success("新增套餐成功");
     }
@@ -80,6 +83,7 @@ public class SetmealController {
      * @return
      */
     @PostMapping("/status/{status}")
+    @CacheEvict(value = "setmealCache",allEntries = true) //删除该名字下所有缓存数据
     // Request URL: http://localhost:8080/setmeal/status/0?ids=1415580119015145474,1653641213449551873
     // 方法：第二个参数可以设置long型数组，不是基本类型都得加requestparam注解
     // 其他方法在dishController里面
@@ -87,20 +91,20 @@ public class SetmealController {
 
        setmealService.updateStatus(status,ids);
 
-        //清理修改的菜品对应的菜品分类id的数据缓存
-        if(ids.size()==1){
-            //如果只修改了一个菜品，则清理对应的那个菜品分类id缓存即可；
-
-            Setmeal byId = setmealService.getById(ids.get(0));
-            String key="setmeal"+"_"+byId.getCategoryId()+"_1";
-            redisTemplate.delete(key);
-
-        } else if(ids.size()>1){
-            //如果修改多个菜品，则清理菜品全部的缓存
-            Set keys = redisTemplate.keys("setmeal_*");
-            redisTemplate.delete(keys);
-
-        }
+//        //清理修改的菜品对应的菜品分类id的数据缓存
+//        if(ids.size()==1){
+//            //如果只修改了一个菜品，则清理对应的那个菜品分类id缓存即可；
+//
+//            Setmeal byId = setmealService.getById(ids.get(0));
+//            String key="setmeal"+"_"+byId.getCategoryId()+"_1";
+//            redisTemplate.delete(key);
+//
+//        } else if(ids.size()>1){
+//            //如果修改多个菜品，则清理菜品全部的缓存
+//            Set keys = redisTemplate.keys("setmeal_*");
+//            redisTemplate.delete(keys);
+//
+//        }
        return R.success("套餐状态修改成功");
 
     }
@@ -108,6 +112,8 @@ public class SetmealController {
 
     /**
      * 批量删除套餐
+     * 该操作不需要清理缓存，因为删除的商品必须是停售状态，而
+     * 修改停售状态就已经清理缓存了，并且后续的商品展示只会展示启售的商品，缓存也只会存正在启售的商品
      * @param ids
      * @return
      */
@@ -116,20 +122,20 @@ public class SetmealController {
 
         setmealService.removeWithDish(ids);
 
-        //清理修改的菜品对应的菜品分类id的数据缓存
-        if(ids.size()==1){
-            //如果只修改了一个菜品，则清理对应的那个菜品分类id缓存即可；
-
-            Setmeal byId = setmealService.getById(ids.get(0));
-            String key="setmeal"+"_"+byId.getCategoryId()+"_1";
-            redisTemplate.delete(key);
-
-        } else if(ids.size()>1){
-            //如果修改多个菜品，则清理菜品全部的缓存
-            Set keys = redisTemplate.keys("setmeal*");
-            redisTemplate.delete(keys);
-
-        }
+//        //清理修改的菜品对应的菜品分类id的数据缓存
+//        if(ids.size()==1){
+//            //如果只修改了一个菜品，则清理对应的那个菜品分类id缓存即可；
+//
+//            Setmeal byId = setmealService.getById(ids.get(0));
+//            String key="setmeal"+"_"+byId.getCategoryId()+"_1";
+//            redisTemplate.delete(key);
+//
+//        } else if(ids.size()>1){
+//            //如果修改多个菜品，则清理菜品全部的缓存
+//            Set keys = redisTemplate.keys("setmeal*");
+//            redisTemplate.delete(keys);
+//
+//        }
         return R.success("套餐数据删除成功");
     }
 
@@ -151,13 +157,14 @@ public class SetmealController {
      * @return
      */
     @PutMapping
+    @CacheEvict(value = "setmealCache",key = "#setmealDto.categoryId +'_1'") //删除该套餐对应的分类id的所有缓存
     public  R<String> update(@RequestBody SetmealDto setmealDto){
 
         setmealService.updateSB(setmealDto);
 
-        //清理套餐对应的一类菜品分类id的缓存数据
-        String key="setmeal_"+setmealDto.getCategoryId()+"_1";
-        redisTemplate.delete(key);
+//        //清理套餐对应的一类菜品分类id的缓存数据
+//        String key="setmeal_"+setmealDto.getCategoryId()+"_1";
+//        redisTemplate.delete(key);
         return R.success("修改成功");
     }
 
@@ -167,17 +174,18 @@ public class SetmealController {
      * @return
      */
     @GetMapping("/list")
+    @Cacheable(value = "setmealCache",key = "#setmeal.categoryId +'_'+#setmeal.status")
     public R<List<Setmeal>> list(Setmeal setmeal){
         List<Setmeal> list=null;
 
-        //动态获取key
-        String key="setmeal_"+setmeal.getCategoryId()+"_"+setmeal.getStatus();//setmeal_1653318404253810690_1
-
-        //判断redis缓存是否有数据，有直接获取
-        list= (List<Setmeal>) redisTemplate.opsForValue().get(key);
-        if (list!=null){
-            return R.success(list);
-        }
+//        //动态获取key
+//        String key="setmeal_"+setmeal.getCategoryId()+"_"+setmeal.getStatus();//setmeal_1653318404253810690_1
+//
+//        //判断redis缓存是否有数据，有直接获取
+//        list= (List<Setmeal>) redisTemplate.opsForValue().get(key);
+//        if (list!=null){
+//            return R.success(list);
+//        }
 
         //没有则从数据库获取
         Long categoryId = setmeal.getCategoryId();
@@ -190,8 +198,8 @@ public class SetmealController {
 
         list = setmealService.list(queryWrapper);
 
-        //并缓存进redis
-        redisTemplate.opsForValue().set(key,list,60, TimeUnit.MINUTES);
+//        //并缓存进redis
+//        redisTemplate.opsForValue().set(key,list,60, TimeUnit.MINUTES);
 
         return R.success(list);
     }

@@ -125,6 +125,8 @@ public class DishController {
 
     /**
      * 批量删除
+     * 该操作不需要清理缓存，因为删除的商品必须是停售状态，而
+     * 修改停售状态就已经清理缓存了，并且后续的商品展示只会展示启售的商品，缓存也只会存正在启售的商品
      * @param ids
      * @return
      */
@@ -137,20 +139,20 @@ public class DishController {
 
         dishService.removeByIds(idList);//执行批量删除（MP自带方法）
 
-        //清理修改的菜品对应的菜品分类id的数据缓存
-        if(split.length==1){
-            //如果只修改了一个菜品，则清理对应的那个菜品分类id缓存即可；
-
-            Dish byId = dishService.getById(ids);
-            String key="dish"+"_"+byId.getCategoryId()+"_1";
-            redisTemplate.delete(key);
-
-        } else if(split.length>1){
-            //如果修改多个菜品，则清理菜品全部的缓存
-            Set keys = redisTemplate.keys("dish_*");
-            redisTemplate.delete(keys);
-
-        }
+//        //清理修改的菜品对应的菜品分类id的数据缓存
+//        if(split.length==1){
+//            //如果只修改了一个菜品，则清理对应的那个菜品分类id缓存即可；
+//
+//            Dish byId = dishService.getById(ids);
+//            String key="dish"+"_"+byId.getCategoryId()+"_1";
+//            redisTemplate.delete(key);
+//
+//        } else if(split.length>1){
+//            //如果修改多个菜品，则清理菜品全部的缓存
+//            Set keys = redisTemplate.keys("dish_*");
+//            redisTemplate.delete(keys);
+//
+//        }
 
         log.info("删除的ids: {}",ids);
         return R.success("删除成功"); //返回成功
