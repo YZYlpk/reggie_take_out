@@ -1,12 +1,13 @@
 # Default ignored files
+.idea
 .git
+/target/
 /shelf/
 /workspace.xml
 # Editor-based HTTP Client requests
 /httpRequests/
 # Datasource local storage ignored files
 /dataSources/
-/target/
 /dataSources.local.xml
 # Zeppelin ignored files
 /ZeppelinRemoteNotebooks/
