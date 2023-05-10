@@ -10,6 +10,10 @@ import com.itheima.entity.Dish;
 import com.itheima.entity.DishFlavor;
 import com.itheima.service.DishFlavorService;
 import com.itheima.service.DishService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +34,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @RestController
 @RequestMapping("/dish")
+@Api(tags = "菜品管理相关接口")
 public class DishController {
 
     @Autowired
@@ -51,6 +56,12 @@ public class DishController {
      * @return
      */
     @GetMapping("/page")
+    @ApiOperation(value = "菜品管理分页查询接口")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "page",value = "页码",required = true),
+            @ApiImplicitParam(name = "pageSize",value = "每页记录数",required = true),
+            @ApiImplicitParam(name = "name",value = "菜品名称",required = false)
+    })
     public R<Page> page(int page,int pageSize,String name){
 
         Page<DishDto> dishDtoPage = dishService.page(page, pageSize, name);
@@ -65,6 +76,7 @@ public class DishController {
      * @return
      */
     @PostMapping
+    @ApiOperation(value = "新增菜品接口")
     public  R<String> save(@RequestBody DishDto dishDto){
         log.info(dishDto.toString());
 
@@ -83,6 +95,7 @@ public class DishController {
      * @return
      */
     @GetMapping("/{id}")
+    @ApiOperation(value = "后台查询菜品接口")
     public R<DishDto> get(@PathVariable Long id){
 
         DishDto dishDto = dishService.getByIdWithFlavor(id);
@@ -96,6 +109,7 @@ public class DishController {
      * @return
      */
     @PutMapping
+    @ApiOperation(value = "修改菜品接口")
     public R<String> update(@RequestBody DishDto dishDto){
         log.info(dishDto.toString());
 
@@ -115,6 +129,7 @@ public class DishController {
      * @return
      */
     @PostMapping("/status/{status}")
+    @ApiOperation(value = "修改售卖状态接口")
     public R<String> updateStatus(@PathVariable int status, String ids){
         log.info("状态：{}，id：{}",status,ids);
 
@@ -131,6 +146,7 @@ public class DishController {
      * @return
      */
     @DeleteMapping
+    @ApiOperation(value = "删除菜品接口")
     public R<String> delete(String ids){
         String[] split = ids.split(","); //将每个id分开
 
@@ -190,6 +206,7 @@ public class DishController {
      */
     @GetMapping("/list")
     @Transactional
+    @ApiOperation(value = "移动端查询菜品接口")
     // url：http://localhost:8080/dish/list?categoryId=1413341197421846529
     // 正常情况下参数应该是id，但我们可以用dish实体类，它有属性id。
     // 这样我们就可以通过dish里面的status来筛选还在售卖的菜品

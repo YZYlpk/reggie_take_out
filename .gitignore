@@ -2,6 +2,7 @@
 .idea
 .git
 /target/
+target/*
 /shelf/
 /workspace.xml
 # Editor-based HTTP Client requests

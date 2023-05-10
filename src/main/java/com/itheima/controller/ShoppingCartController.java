@@ -5,6 +5,8 @@ import com.itheima.common.BaseContext;
 import com.itheima.common.R;
 import com.itheima.entity.ShoppingCart;
 import com.itheima.service.ShoppingCartService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +21,7 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequestMapping("/shoppingCart")
+@Api(tags = "购物车相关接口")
 public class ShoppingCartController {
 
     @Autowired
@@ -29,6 +32,7 @@ public class ShoppingCartController {
      * @return
      */
     @GetMapping("/list")
+    @ApiOperation(value = "查看购物车接口")
     public R<List<ShoppingCart>> list(){
         log.info("查看购物车.....");
         LambdaQueryWrapper<ShoppingCart> queryWrapper=new LambdaQueryWrapper<>();
@@ -45,6 +49,7 @@ public class ShoppingCartController {
      * @return
      */
     @PostMapping("/add")
+    @ApiOperation(value = "添加到购物车接口")
     public R<ShoppingCart> add(@RequestBody ShoppingCart shoppingCart){
         //设置购物车的使用者id(不然不清楚是谁的购物车)
         shoppingCart.setUserId(BaseContext.getCurrentId());
@@ -79,6 +84,7 @@ public class ShoppingCartController {
      * @return
      */
     @PostMapping("/sub")
+    @ApiOperation(value = "购物车减少商品数量接口")
     public R<String> sub(@RequestBody Map<String,Long> map){
         //设置购物车的使用者id(不然不清楚是谁的购物车)
         Long id = BaseContext.getCurrentId();
@@ -117,6 +123,7 @@ public class ShoppingCartController {
      * @return
      */
     @DeleteMapping("/clean")
+    @ApiOperation(value = "清空购物车接口")
     public R<String> delete(){
         LambdaQueryWrapper<ShoppingCart> queryWrapper=new LambdaQueryWrapper<>();
 

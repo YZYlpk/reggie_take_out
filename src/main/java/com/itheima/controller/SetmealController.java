@@ -9,8 +9,11 @@ import com.itheima.entity.Setmeal;
 import com.itheima.service.SetmealDishService;
 import com.itheima.service.SetmealService;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -18,8 +21,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -28,6 +29,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @RestController
 @RequestMapping("/setmeal")
+@Api(tags = "套餐相关接口")
 public class SetmealController {
 
     @Autowired
@@ -50,6 +52,7 @@ public class SetmealController {
      */
     @PostMapping
     @CacheEvict(value = "setmealCache",key = "#setmealDto.categoryId +'_1'") //删除该套餐对应的分类id的所有缓存
+    @ApiOperation(value = "新增套餐接口")
     public R<String> save(@RequestBody SetmealDto setmealDto){
         log.info("套餐信息：{}",setmealDto);
 
@@ -70,6 +73,12 @@ public class SetmealController {
      * @return
      */
     @GetMapping("/page")
+    @ApiOperation(value = "套餐分页查询接口")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "page",value = "页码",required = true),
+            @ApiImplicitParam(name = "pageSize",value = "每页记录数",required = true),
+            @ApiImplicitParam(name = "name",value = "套餐名称",required = false)
+    })
     public R<Page> page(int page,int pageSize,String name){
         Page<SetmealDto> pageInfo = setmealService.page(page, pageSize, name);
         return  R.success(pageInfo);
@@ -84,6 +93,7 @@ public class SetmealController {
      */
     @PostMapping("/status/{status}")
     @CacheEvict(value = "setmealCache",allEntries = true) //删除该名字下所有缓存数据
+    @ApiOperation(value = "批量修改套餐起售和停售状态接口")
     // Request URL: http://localhost:8080/setmeal/status/0?ids=1415580119015145474,1653641213449551873
     // 方法：第二个参数可以设置long型数组，不是基本类型都得加requestparam注解
     // 其他方法在dishController里面
@@ -118,6 +128,7 @@ public class SetmealController {
      * @return
      */
     @DeleteMapping
+    @ApiOperation(value = "批量删除套餐接口")
     public R<String> delete(@RequestParam List<Long> ids){
 
         setmealService.removeWithDish(ids);
@@ -144,6 +155,7 @@ public class SetmealController {
      * @return
      */
     @GetMapping("/{id}")
+    @ApiOperation(value = "后台套餐条件查询接口")
     public R<SetmealDto> get(@PathVariable Long id){
 
         SetmealDto setmealDto = setmealService.getByIdWithFlavor(id);
@@ -158,6 +170,7 @@ public class SetmealController {
      */
     @PutMapping
     @CacheEvict(value = "setmealCache",key = "#setmealDto.categoryId +'_1'") //删除该套餐对应的分类id的所有缓存
+    @ApiOperation(value = "修改套餐接口")
     public  R<String> update(@RequestBody SetmealDto setmealDto){
 
         setmealService.updateSB(setmealDto);
@@ -175,6 +188,7 @@ public class SetmealController {
      */
     @GetMapping("/list")
     @Cacheable(value = "setmealCache",key = "#setmeal.categoryId +'_'+#setmeal.status")
+    @ApiOperation(value = "移动端套餐条件查询接口")
     public R<List<Setmeal>> list(Setmeal setmeal){
         List<Setmeal> list=null;
 

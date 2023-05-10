@@ -11,6 +11,10 @@ import com.itheima.entity.ShoppingCart;
 import com.itheima.service.OrderDetailService;
 import com.itheima.service.OrdersService;
 import com.itheima.service.ShoppingCartService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.javassist.expr.NewArray;
 import org.springframework.beans.BeanUtils;
@@ -33,6 +37,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @RestController
 @RequestMapping("/order")
+@Api(tags = "订单相关接口")
 public class OrdersConotroller {
 
     @Autowired
@@ -50,6 +55,7 @@ public class OrdersConotroller {
      * @return
      */
     @PostMapping("/submit")
+    @ApiOperation(value = "用户下单接口")
     public R<String> submit(@RequestBody Orders orders){
         log.info("订单数据：{}",orders);
         ordersService.submit(orders);
@@ -65,6 +71,14 @@ public class OrdersConotroller {
      * @return
      */
     @GetMapping("/page")
+    @ApiOperation(value = "后台订单管理分页查询接口")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "page",value = "页码",required = true),
+            @ApiImplicitParam(name = "pageSize",value = "每页记录数",required = true),
+            @ApiImplicitParam(name = "number",value = "订单号",required = false),
+            @ApiImplicitParam(name = "beginTime",value = "开始时间",required = false),
+            @ApiImplicitParam(name = "endTime",value = "结束时间",required = false)
+    })
     public R<Page> page(int page, int pageSize, Long number ,
                         @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date beginTime,
                         @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date endTime){
@@ -90,6 +104,11 @@ public class OrdersConotroller {
      * @return
      */
     @GetMapping("/userPage")
+    @ApiOperation(value = "移动端订单管理分页查询接口")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "page",value = "页码",required = true),
+            @ApiImplicitParam(name = "pageSize",value = "每页记录数",required = true)
+    })
     public R<Page> userPage(int page, int pageSize){
 
         Page<OrdersDto> pageInfoDto = ordersService.userPage(page, pageSize);
@@ -102,6 +121,7 @@ public class OrdersConotroller {
      * @return
      */
     @PutMapping
+    @ApiOperation(value = "修改订单状态接口")
     public R<String> update(@RequestBody Orders orders) {
         Long id = orders.getId();
         //Integer status = map.get("status");
@@ -123,6 +143,7 @@ public class OrdersConotroller {
      */
     @PostMapping("/again")
     @Transactional
+    @ApiOperation(value = "再来一单接口")
     public R<String> again(@RequestBody Map<String,Long> map){
 
         ordersService.again(map);

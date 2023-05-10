@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.itheima.common.R;
 import com.itheima.entity.Category;
 import com.itheima.service.CategoryService;
+import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +16,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("/category")
+@Api(tags = "分类管理相关接口")
 public class CategoryController {
     @Autowired
     private CategoryService categoryService;
@@ -25,6 +27,7 @@ public class CategoryController {
      * @return
      */
     @PostMapping
+    @ApiOperation(value = "新增分类接口")
     public R<String> save(@RequestBody Category category){
         log.info("category:{}",category);
         categoryService.save(category);
@@ -38,6 +41,11 @@ public class CategoryController {
      * @return
      */
     @GetMapping("/page")
+    @ApiOperation(value = "分类管理分页查询接口")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "page",value = "页码",required = true),
+            @ApiImplicitParam(name = "pageSize",value = "每页记录数",required = true),
+    })
     public R<Page> page(int page,int pageSize){
         log.info("page= {} ,pageSize= {}",page,pageSize);
         //构造分页构造器（因为page里面没用sort属性，所以得加范型Category）
@@ -56,11 +64,12 @@ public class CategoryController {
     }
 
     /**
-     * 根据id输出分类
+     * 根据id删除分类
      * @param ids
      * @return
      */
     @DeleteMapping
+    @ApiOperation(value = "删除分类接口")
     public R<String> delete(Long ids){
         log.info("删除分类，id为：{}",ids);
 
@@ -75,6 +84,7 @@ public class CategoryController {
      * @return
      */
     @PutMapping
+    @ApiOperation(value = "修改分类接口")
     public R<String> update(@RequestBody Category category){
         log.info("修改分类信息：{}",category);
 
@@ -88,6 +98,7 @@ public class CategoryController {
      * @return
      */
     @GetMapping("/list")
+    @ApiOperation(value = "移动端获取菜品分类接口")
     public R<List<Category>> list(Category category){
         //条件构造器
         LambdaQueryWrapper<Category> queryWrapper=new LambdaQueryWrapper<>();

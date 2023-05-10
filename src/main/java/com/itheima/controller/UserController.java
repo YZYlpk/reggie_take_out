@@ -6,6 +6,8 @@ import com.itheima.entity.User;
 import com.itheima.service.UserService;
 import com.itheima.utils.SMSUtils;
 import com.itheima.utils.ValidateCodeUtils;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 @RestController
 @RequestMapping("/user")
 @Slf4j
+@Api(tags = "用户登录相关接口")
 public class UserController {
     @Autowired
     private UserService userService;
@@ -38,6 +41,7 @@ public class UserController {
      * @return
      */
     @PostMapping("/sendMsg")
+    @ApiOperation(value = "发送短信验证码接口")
     public R<String> sendMsg(@RequestBody User user, HttpSession session){
         //获取手机号码
         String phone=user.getPhone();
@@ -68,6 +72,7 @@ public class UserController {
      * @return
      */
     @PostMapping("/login")
+    @ApiOperation(value = "移动端用户登录接口")
     //前端传过来的数据，有phone和code 参数可以直接用Map（键值对）
     public R<User> login(@RequestBody Map map,HttpSession session){
         log.info(map.toString());
@@ -115,6 +120,7 @@ public class UserController {
      * @return
      */
     @PostMapping("/loginout")
+    @ApiOperation(value = "退出登录接口")
     public R<String> loginOut(HttpSession session){
         //清理Session中保存的当前移动端登录的用户id
         session.removeAttribute("user");

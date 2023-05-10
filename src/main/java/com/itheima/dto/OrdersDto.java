@@ -2,10 +2,12 @@ package com.itheima.dto;
 
 import com.itheima.entity.OrderDetail;
 import com.itheima.entity.Orders;
+import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import java.util.List;
 
 @Data
+@ApiModel("订单dto")
 public class OrdersDto extends Orders {
 
     private String userName;
