@@ -62,6 +62,12 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-cache</artifactId>
     </dependency>
+<!--导入knife4j：MVC框架集成Swagger生成API文档的增强解决方案-->
+    <dependency>
+      <groupId>com.github.xiaoymin</groupId>
+      <artifactId>knife4j-spring-boot-starter</artifactId>
+      <version>3.0.2</version>
+    </dependency>
 
     <dependency>
       <groupId>org.projectlombok</groupId>
