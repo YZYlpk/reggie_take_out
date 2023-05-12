@@ -1,8 +1,11 @@
 # Default ignored files
 .idea
 .git
-/target/
-target/*
+target/
+target/**
+**/test/
+**/classes
+.idea/**.xml
 /shelf/
 /workspace.xml
 # Editor-based HTTP Client requests

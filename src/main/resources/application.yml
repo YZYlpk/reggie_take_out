@@ -35,10 +35,7 @@ spring:
     props:
       sql:
         show: true #开启SQL显示，默认false
-  main:
-    allow-bean-definition-overriding: true  #运行bean定义覆盖
-
-#  datasource:
+  #  datasource:
 #    druid:
 #      driver-class-name: com.mysql.cj.jdbc.Driver
 #      url: jdbc:mysql://localhost:3306/reggie?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
@@ -63,6 +60,8 @@ spring:
     redis:
       time-to-live: 1800000 #设置缓存过期时间
       cache-null-values: true #设置缓存null值，可以有效防止缓存穿透
+  main:
+    allow-bean-definition-overriding: true  #运行bean定义覆盖
 
 mybatis-plus:
   mapper-locations: classpath:mapper/*.xml # mapper接口对应的配置文件位置
@@ -77,4 +76,5 @@ mybatis-plus:
 
 # 自定义文件下载位置
 reggie:
+  #path: \usr\local\img  #linux部署时的图片位置
   path: D:\img\
