@@ -31,7 +31,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * 填充excel模板
+ * easyExcel导出excel
  */
 @RestController
 @RequestMapping("/easyExcel")
@@ -46,7 +46,7 @@ public class EasyExcelController {
 
 
     @GetMapping("/outputExcelLocal")
-    @ApiOperation(value = "写Excel接口(直接保存到本地)")
+    @ApiOperation(value = "注解写Excel接口(直接保存到本地)")
     public void OutputExcel() {
         /** 保存到本地的写Excel接口 **/
         String filename = "D:\\workspace\\reggie_take_out\\src\\main\\resources\\excel\\菜品分类管理表.xlsx";
@@ -65,7 +65,7 @@ public class EasyExcelController {
     }
 
     @GetMapping("/outputExcel")
-    @ApiOperation(value = "写Excel接口")
+    @ApiOperation(value = "注解写Excel接口")
     public void OutputExcel(HttpServletResponse response){
         /** 通过网页响应下载excel **/
         try {

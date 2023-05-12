@@ -131,6 +131,12 @@
       <version>3.2.0</version>
     </dependency>
 
+    <!-- poi-tl：填充并下载word、excel模板 -->
+    <dependency>
+      <groupId>com.deepoove</groupId>
+      <artifactId>poi-tl</artifactId>
+      <version>1.6.0-beta1</version>
+    </dependency>
 
   </dependencies>
 

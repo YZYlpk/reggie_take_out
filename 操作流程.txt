@@ -1,0 +1,29 @@
+瑞吉外卖b站视频：https://www.bilibili.com/video/BV13a411q753/?p=4&vd_source=13825b6eb27c358f9f6f2b7c19f7afef
+
+
+《-本地localhost-》
+
+1.启动两台服务器（192.168.146.128 和 192.168.146.129） ——> 开启各自的MySQL服务
+
+2.开启redis（在D:\Redis-x64-5.0.14.1），在该目录通过cmd执行a命令.txt里面的命令，然后开启redis-cil.exe，输入auth 123456进行登录；然后可以通过RedisDesktopManager查看后续的缓存。
+
+3.启动springboot
+
+4.后台管理端：http://localhost:8080/backend/page/login/login.html
+
+  移动端：http://localhost:8080/front/page/login.html
+
+  API文档(knife4j:MVC框架集成swagger生成AIP文档的增强方案)：http://localhost:8080/doc.html
+
+
+《-linux两台服务器部署(nginx反向代理)-》
+
+1.启动两台服务器（192.168.146.128 和 192.168.146.129） ——> 开启各自的MySQL服务
+
+2.开启redis（D:\Redis-x64-5.0.14.1），通过cmd执行a命令.txt，然后开启redis-cil.exe，输入auth 123456进行登录；然后可以通过RedisDesktopManager查看后续的缓存。
+
+3.代理服务器1（192.168.146.128）开启nginx，前端资源已部署到nginx上；通过nginx进行反向代理（nginx.conf已配置）
+
+4.将项目打包成jar包上传到目标服务器2（192.168.146.129），注意yml文件的reggie.path得改。接着执行java -jar (jar包名字)来部署后端
+
+5.后台管理端（登录代理服务器的ip，即会向目标服务器进行请求）：192.168.146.128
